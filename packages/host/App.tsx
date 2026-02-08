@@ -251,17 +251,14 @@ function getRotation(dir: Direction, arm: 'right' | 'left'): 0 | 90 | -90 | 180 
  * Corner tiles are transitional: they bridge two directions. The connecting
  * face must be adjacent to the chain from the OLD direction, not the new one.
  *
- * Right arm corners (clockwise turns):
- *   right→down: connecting left face must point left (toward horizontal chain) → 90°
- *   down→left:  connecting left face must point up (toward vertical chain)    → 180°
- *   left→up:    connecting left face must point right (toward horizontal chain)→ -90°
- *   up→right:   connecting left face must point down (toward vertical chain)  → 0°
+ * Right arm corners (connecting face = displayLeft, first half):
+ *   right→down: 90°    left→up:  -90°
+ *   down→left:  180°   up→right: 0°
  *
- * Left arm corners (counter-clockwise turns):
- *   left→up:    connecting right face must point right (toward horizontal chain) → -90°
- *   up→right:   connecting right face must point down (toward vertical chain)    → 0°
- *   right→down: connecting right face must point left (toward horizontal chain)  → 90°
- *   down→left:  connecting right face must point up (toward vertical chain)      → 180°
+ * Left arm corners (connecting face = displayRight, second half):
+ *   Values are shifted 180° from right arm so the second half aligns instead.
+ *   left→up:    90°    right→down: -90°
+ *   up→right:   180°   down→left:  0°
  */
 function getCornerRotation(oldDir: Direction, arm: 'right' | 'left'): 0 | 90 | -90 | 180 {
   if (arm === 'right') {
@@ -273,10 +270,10 @@ function getCornerRotation(oldDir: Direction, arm: 'right' | 'left'): 0 | 90 | -
     }
   } else {
     switch (oldDir) {
-      case 'left': return -90;    // left→up corner
-      case 'up': return 0;        // up→right corner
-      case 'right': return 90;    // right→down corner
-      case 'down': return 180;    // down→left corner
+      case 'left': return 90;     // left→up corner
+      case 'up': return 180;     // up→right corner
+      case 'right': return -90;  // right→down corner
+      case 'down': return 0;     // down→left corner
     }
   }
 }
@@ -361,29 +358,33 @@ function layoutArm(
       const newRotation = getCornerRotation(dir, arm);
       const { w: cornerW, h: cornerH } = getRotatedDimensions(bt, halfSize, newRotation);
 
-      // Position the corner tile relative to the cursor, aligned to the
-      // previous direction's flow so it connects seamlessly.
+      // Position the corner tile relative to the cursor, aligned so its
+      // connecting face meets the chain from the old direction.
+      //
+      // Right arm connecting face = displayLeft (first half of tile).
+      // Left arm connecting face = displayRight (second half of tile).
+      //
+      // Because the two arms use different halves as the connecting face,
+      // the left arm's corner tiles need a cross-axis offset so that the
+      // second half (rather than the first) lines up with the preceding
+      // straight tiles.  The offset equals (halfSize - cornerDimension)
+      // in the axis perpendicular to the old direction.
+      const crossOffset = arm === 'left' ? halfSize - (dir === 'right' || dir === 'left' ? cornerH : cornerW) : 0;
+
       let cornerX = cursorX;
       let cornerY = cursorY;
 
       if (dir === 'right') {
-        // Cursor is at the right edge of the last tile + gap.
-        // Corner tile starts here, oriented for the new direction (down).
         cornerX = cursorX;
-        cornerY = cursorY;
+        cornerY = cursorY + crossOffset;
       } else if (dir === 'down') {
-        // Cursor is below the last tile + gap.
-        cornerX = cursorX;
+        cornerX = cursorX + crossOffset;
         cornerY = cursorY;
       } else if (dir === 'left') {
-        // Cursor is at the left edge of the last tile - gap.
-        // Corner tile's right edge aligns with cursor.
         cornerX = cursorX - cornerW;
-        cornerY = cursorY;
+        cornerY = cursorY + crossOffset;
       } else if (dir === 'up') {
-        // Cursor is above the last tile - gap.
-        // Corner tile's bottom edge aligns with cursor.
-        cornerX = cursorX;
+        cornerX = cursorX + crossOffset;
         cornerY = cursorY - cornerH;
       }
 
