@@ -1,25 +1,36 @@
-# Buzz TV Party Game
+# Domino Party Game
 
-The official starter project for [`@party-kit`](https://github.com/faluciano/react-native-party-kit) — a library that turns an Android TV into a local party-game console with phones as controllers.
-
-Buzz is a multiplayer buzzer game that demonstrates the complete `@party-kit` setup: shared reducer, TV host app, phone web controller, and Android build pipeline. Clone it and modify the game logic to build your own party game.
+A Dominican-style dominoes party game built with [`@party-kit`](https://github.com/faluciano/react-native-party-kit). An Android TV acts as the game board and server, while phones connect as controllers via QR code.
 
 ## How It Works
 
-- **TV (Host)**: Runs on Android TV and displays the game state
-- **Smartphones (Controllers)**: Connect via QR code and act as buzzers
-- **Real-time Sync**: All devices stay synchronized via WebSocket
+- **TV (Host)**: Runs on Android TV, displays the domino board, scores, and manages the game
+- **Smartphones (Controllers)**: Players connect via QR code to view their hand and play tiles
+- **Real-time Sync**: All devices stay synchronized via WebSocket over local network
+- **Bots**: Empty seats are auto-filled with simple bots so you can play with 1-3 humans
+
+## Game Rules (Dominican Dominoes)
+
+- **Players**: 4 players in 2 teams (Team A: seats 0 & 2, Team B: seats 1 & 3 -- partners sit across)
+- **Tiles**: Standard double-six set (28 tiles: [0|0] through [6|6])
+- **Deal**: All 28 tiles dealt, 7 per player
+- **First round**: Player with the double-six (la mula) goes first
+- **Subsequent rounds**: Winner of the previous round leads
+- **Turns**: Clockwise. Play a tile matching either open end of the chain, or pass if unable
+- **Domino**: When a player empties their hand, their team scores the total pips remaining in the opponents' hands
+- **Tranque (Blocked)**: When no player can play, the team with fewer remaining pips wins and scores the difference
+- **Game winner**: First team to reach 200 points
 
 ## Project Structure
 
 ```
-Buzz/
+domino-party-game/
 ├── packages/
-│   ├── shared/          # Shared game logic and types
-│   ├── host/            # Android TV React Native app
-│   └── client/          # Web controller for smartphones
+│   ├── shared/          # Game logic, types, reducer (runs on both host and client)
+│   ├── host/            # Android TV React Native app (Expo)
+│   └── client/          # Phone web controller (Vite + React)
 ├── package.json         # Root workspace configuration
-└── README.md           # This file
+└── README.md
 ```
 
 ## Prerequisites
@@ -57,31 +68,17 @@ bun install
 
 ### 2. Generate the Native Android Project (First Time Only)
 
-Expo needs to generate the native Android project files before you can build. Run this once after cloning, or whenever you add/change native dependencies or Expo plugins:
-
 ```bash
 cd packages/host
 bun run prebuild
 ```
 
-> **Important:** `expo prebuild` clears and regenerates the `android/` directory. Any files previously placed there (including bundled client assets) will be deleted. Always run `prebuild` **before** bundling the client.
+> **Important:** `expo prebuild` clears and regenerates the `android/` directory. Always run `prebuild` **before** bundling the client.
 
 ### 3. Bundle the Client and Build for Android
 
-After prebuild has generated the native project, bundle the web controller into the host's Android assets and build the app:
-
 ```bash
 bun run bundle:client
-bun run build:android
-```
-
-Or run each step individually:
-
-```bash
-# Build & bundle the web controller into host assets
-bun run bundle:client
-
-# Run the host on an ADB-connected device
 cd packages/host && npx expo run:android
 ```
 
@@ -96,34 +93,26 @@ cd packages/host && npx expo run:android
 
 ### 4. Connect and Play
 
-1. The TV/device will display a QR code and a URL
-2. Scan the QR code with your phone (or open the URL in a browser on the same network)
-3. Press the buzz button on your phone
-4. Watch the score increase on the host!
+1. The TV will display a QR code
+2. Scan with your phone to open the controller
+3. Choose your team in the lobby
+4. Tap "Start Game" -- empty seats are filled with bots
+5. Play dominoes! Tap a tile to play it, or pass when you can't
 
-## Verification
+## Player Configurations
 
-To verify everything is set up correctly:
+| Humans | Bots | Description |
+|--------|------|-------------|
+| 4 | 0 | Full human game |
+| 3 | 1 | 1 bot fills the empty seat |
+| 2 | 2 | Humans on same or different teams |
+| 1 | 3 | Solo practice with 3 bots |
 
-```bash
-# 1. Verify dependencies are installed
-bun install
+Players can choose their team in the lobby. When the game starts, any empty seats are automatically filled with bots.
 
-# 2. Verify TypeScript compilation
-cd packages/client && bun run build
-# Should show: "built in XXXms" with no errors
+## Bot Behavior
 
-# 3. Verify shared package types
-cd packages/shared && npx tsc --noEmit
-# Should complete with no output (success)
-
-# 4. Start the client dev server
-cd packages/client && bun run dev
-# Should start on http://localhost:5173
-```
-
-**Build Status**: ✅ Client builds successfully  
-**Type Checking**: ✅ All packages typecheck successfully
+Bots use a simple strategy: on their turn, they play the first valid tile in their hand. If no tile can be played, they pass. Bot turns execute automatically on the host with a short delay (~600ms).
 
 ## Development
 
@@ -144,14 +133,7 @@ For iterating on the client without rebuilding the Android app each time:
      devServerUrl: "http://<YOUR_LAPTOP_IP>:5173",
    }}>
    ```
-3. Run the host on the device -- phones will be pointed at your laptop's Vite server instead.
-
-### Production Build
-
-```bash
-# Full pipeline: build client, bundle into host, compile Android APK
-bun run build:android
-```
+3. Run the host on the device -- phones will be pointed at your laptop's Vite server.
 
 ### Available Scripts
 
@@ -175,67 +157,45 @@ bun run preview         # Preview production build
 **Host (Android TV - Expo):**
 ```bash
 cd packages/host
-bun run prebuild        # Generate native project files (first time, or after adding native deps/plugins)
-                        # WARNING: This clears the android/ directory — re-run bundle:client afterward
+bun run prebuild        # Generate native project files (clears android/ directory!)
 bun run android         # Run on Android device/emulator
 bun run start           # Start Expo development server
 ```
 
-### Project Architecture
+### Architecture
 
-The game uses a Redux-like pattern with a shared reducer:
+The game uses a Redux-like shared reducer pattern:
 
-- **State**: `{ status: string, players: Record<string, IPlayer>, score: number }`
-- **Actions**:
-  - `BUZZ`: Increments the score by 1
-  - `RESET`: Resets the score to 0
-  - `PLAYER_JOINED`: Adds a player to the state (dispatched automatically by `@party-kit/host`)
-  - `PLAYER_LEFT`: Marks a player as disconnected (dispatched automatically by `@party-kit/host`)
+**State** includes: teams, seats, hands, board, board ends, scores, turn order, round tracking, and bots.
 
-The reducer runs on both the TV (host) and web controller (client), ensuring both sides stay in sync.
+**Actions:**
 
-## Package Details
+| Action | Description |
+|--------|-------------|
+| `PLAYER_JOINED` | Auto-dispatched when a phone connects |
+| `PLAYER_LEFT` | Auto-dispatched when a phone disconnects |
+| `CHOOSE_TEAM` | Player switches team in the lobby |
+| `START_GAME` | Start the game (fills bots, deals tiles) |
+| `PLAY_TILE` | Play a tile on the left or right end of the board |
+| `PASS` | Pass turn (only valid when no tiles can be played) |
+| `NEW_ROUND` | Start the next round after a round ends |
+| `RESET_GAME` | Return to lobby |
 
-### @my-game/shared
-Contains the game state interface, actions, and reducer. This ensures both host and client use the same logic.
-
-### @my-game/host
-React Native app for Android TV. Uses `@party-kit/host` to:
-- Start a WebSocket server
-- Serve the web controller files
-- Manage game state
-- Display the game UI
-
-### @my-game/client
-Vite + React web app for smartphones. Uses `@party-kit/client` to:
-- Connect to the TV via WebSocket
-- Display the controller UI
-- Send actions (BUZZ) to the host
+The reducer runs on both the TV (host) and web controller (client), keeping state synchronized. The host is authoritative -- it runs bot turns and broadcasts state updates to all clients.
 
 ## Troubleshooting
 
-### JDK version error ("Unsupported class file major version")
-Gradle requires JDK 17. Verify with:
-```bash
-$JAVA_HOME/bin/java -version  # Should show 17.x.x
-```
-If wrong, set `JAVA_HOME` to JDK 17 (see Prerequisites above).
-
-### Android SDK not found
-Set the `ANDROID_HOME` environment variable (see Prerequisites above).
-
 ### Client page is blank after scanning QR code
-The web controller wasn't bundled into the host. This can happen if you ran `expo prebuild` after `bundle:client`, since prebuild clears the `android/` directory. Fix by re-bundling:
+The web controller wasn't bundled. This happens if `expo prebuild` was run after `bundle:client`. Fix:
 ```bash
 bun run bundle:client
 ```
 Then rebuild the Android app.
 
 ### WebSocket connection fails
-Ensure both devices are on the same WiFi network. The host device acts as the server, so it needs to be discoverable on the local network.
+Ensure both devices are on the same WiFi network.
 
 ### Metro bundler port conflict
-If port 8081 is already in use, Expo will prompt to use an alternative port. You can also clear Metro cache:
 ```bash
 cd packages/host
 bun run start --reset-cache
@@ -252,5 +212,3 @@ MIT
 - @party-kit/core: 0.1.0
 - Expo SDK: 54
 - React Native: 0.81.5
-
-Build your own party games by modifying the game reducer in `packages/shared/index.ts`. Add new actions, change the scoring logic, or create entirely new game modes! See the [`@party-kit` documentation](https://github.com/faluciano/react-native-party-kit) for the full API reference.

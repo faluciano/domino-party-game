@@ -1,5 +1,5 @@
 {
-  "name": "buzz-party-game",
+  "name": "domino-party-game",
   "version": "1.0.0",
   "workspaces": [
     "packages/*"

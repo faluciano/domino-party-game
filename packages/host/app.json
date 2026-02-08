@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Buzz TV Host",
-    "slug": "buzz-tv-host",
+    "name": "Domino Party",
+    "slug": "domino-party",
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/icon.png",
@@ -14,14 +14,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.buzzgame.host"
+      "bundleIdentifier": "com.dominoparty.host"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a1a"
       },
-      "package": "com.buzzgame.host",
+      "package": "com.dominoparty.host",
       "screenOrientation": "landscape",
       "softwareKeyboardLayoutMode": "pan",
       "softwareKeyboardLayoutMode": "pan"
