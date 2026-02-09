@@ -1,6 +1,6 @@
 # Domino Party Game
 
-A Dominican-style dominoes party game built with [`@party-kit`](https://github.com/faluciano/react-native-party-kit). An Android TV acts as the game board and server, while phones connect as controllers via QR code.
+A Dominican-style dominoes party game built with [`@couch-kit`](https://github.com/faluciano/tv-part-library). An Android TV acts as the game board and server, while phones connect as controllers via QR code.
 
 ## How It Works
 
@@ -101,12 +101,12 @@ cd packages/host && npx expo run:android
 
 ## Player Configurations
 
-| Humans | Bots | Description |
-|--------|------|-------------|
-| 4 | 0 | Full human game |
-| 3 | 1 | 1 bot fills the empty seat |
-| 2 | 2 | Humans on same or different teams |
-| 1 | 3 | Solo practice with 3 bots |
+| Humans | Bots | Description                       |
+| ------ | ---- | --------------------------------- |
+| 4      | 0    | Full human game                   |
+| 3      | 1    | 1 bot fills the empty seat        |
+| 2      | 2    | Humans on same or different teams |
+| 1      | 3    | Solo practice with 3 bots         |
 
 Players can choose their team in the lobby. When the game starts, any empty seats are automatically filled with bots.
 
@@ -138,6 +138,7 @@ For iterating on the client without rebuilding the Android app each time:
 ### Available Scripts
 
 **Root Level:**
+
 ```bash
 bun install              # Install all dependencies
 bun run dev:client       # Start client Vite dev server
@@ -147,6 +148,7 @@ bun run build:android    # bundle:client + expo run:android
 ```
 
 **Client (Web Controller):**
+
 ```bash
 cd packages/client
 bun run dev             # Start development server
@@ -155,6 +157,7 @@ bun run preview         # Preview production build
 ```
 
 **Host (Android TV - Expo):**
+
 ```bash
 cd packages/host
 bun run prebuild        # Generate native project files (clears android/ directory!)
@@ -170,32 +173,37 @@ The game uses a Redux-like shared reducer pattern:
 
 **Actions:**
 
-| Action | Description |
-|--------|-------------|
-| `PLAYER_JOINED` | Auto-dispatched when a phone connects |
-| `PLAYER_LEFT` | Auto-dispatched when a phone disconnects |
-| `CHOOSE_TEAM` | Player switches team in the lobby |
-| `START_GAME` | Start the game (fills bots, deals tiles) |
-| `PLAY_TILE` | Play a tile on the left or right end of the board |
-| `PASS` | Pass turn (only valid when no tiles can be played) |
-| `NEW_ROUND` | Start the next round after a round ends |
-| `RESET_GAME` | Return to lobby |
+| Action          | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `PLAYER_JOINED` | Auto-dispatched when a phone connects              |
+| `PLAYER_LEFT`   | Auto-dispatched when a phone disconnects           |
+| `CHOOSE_TEAM`   | Player switches team in the lobby                  |
+| `START_GAME`    | Start the game (fills bots, deals tiles)           |
+| `PLAY_TILE`     | Play a tile on the left or right end of the board  |
+| `PASS`          | Pass turn (only valid when no tiles can be played) |
+| `NEW_ROUND`     | Start the next round after a round ends            |
+| `RESET_GAME`    | Return to lobby                                    |
 
 The reducer runs on both the TV (host) and web controller (client), keeping state synchronized. The host is authoritative -- it runs bot turns and broadcasts state updates to all clients.
 
 ## Troubleshooting
 
 ### Client page is blank after scanning QR code
+
 The web controller wasn't bundled. This happens if `expo prebuild` was run after `bundle:client`. Fix:
+
 ```bash
 bun run bundle:client
 ```
+
 Then rebuild the Android app.
 
 ### WebSocket connection fails
+
 Ensure both devices are on the same WiFi network.
 
 ### Metro bundler port conflict
+
 ```bash
 cd packages/host
 bun run start --reset-cache
@@ -207,8 +215,8 @@ MIT
 
 ## Current Status
 
-- @party-kit/host: ^0.2.0
-- @party-kit/client: ^0.2.0
-- @party-kit/core: 0.1.0
+- @couch-kit/host: ^0.3.0
+- @couch-kit/client: ^0.3.0
+- @couch-kit/core: ^0.2.0
 - Expo SDK: 54
 - React Native: 0.81.5

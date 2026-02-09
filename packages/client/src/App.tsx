@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGameClient } from "@party-kit/client";
+import { useGameClient } from "@couch-kit/client";
 import {
   gameReducer,
   initialState,
@@ -23,11 +23,36 @@ function DotPattern({ value }: { value: number }) {
   const positions: Record<number, [number, number][]> = {
     0: [],
     1: [[20, 20]],
-    2: [[12, 12], [28, 28]],
-    3: [[12, 12], [20, 20], [28, 28]],
-    4: [[12, 12], [28, 12], [12, 28], [28, 28]],
-    5: [[12, 12], [28, 12], [20, 20], [12, 28], [28, 28]],
-    6: [[12, 10], [28, 10], [12, 20], [28, 20], [12, 30], [28, 30]],
+    2: [
+      [12, 12],
+      [28, 28],
+    ],
+    3: [
+      [12, 12],
+      [20, 20],
+      [28, 28],
+    ],
+    4: [
+      [12, 12],
+      [28, 12],
+      [12, 28],
+      [28, 28],
+    ],
+    5: [
+      [12, 12],
+      [28, 12],
+      [20, 20],
+      [12, 28],
+      [28, 28],
+    ],
+    6: [
+      [12, 10],
+      [28, 10],
+      [12, 20],
+      [28, 20],
+      [12, 30],
+      [28, 30],
+    ],
   };
 
   const dots = positions[value] || [];
@@ -73,8 +98,8 @@ function TileView({
         backgroundColor: selected
           ? "#2563eb"
           : playable
-          ? "#1e3a5f"
-          : "#333333",
+            ? "#1e3a5f"
+            : "#333333",
         border: `2px solid ${
           selected ? "#60a5fa" : playable ? "#3b82f6" : "#555555"
         }`,
@@ -125,7 +150,7 @@ function LobbyScreen({
 }) {
   const myTeam = playerId ? getTeam(state, playerId) : null;
   const connectedHumans = Object.values(state.players).filter(
-    (p) => p.connected
+    (p) => p.connected,
   ).length;
 
   const handleChooseTeam = (team: "a" | "b") => {
@@ -160,7 +185,7 @@ function LobbyScreen({
             }}
           >
             {name} {isBotPlayer ? "(Bot)" : ""} {isSelf ? "(You)" : ""}
-          </div>
+          </div>,
         );
       } else {
         slots.push(
@@ -177,7 +202,7 @@ function LobbyScreen({
             }}
           >
             Empty (bot will fill)
-          </div>
+          </div>,
         );
       }
     }
@@ -324,15 +349,21 @@ function PlayingScreen({
   // empty hand that confuses the player.
   if (myHand.length === 0 && state.board.length === 0) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, color: "#888" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flex: 1,
+          color: "#888",
+        }}
+      >
         Loading game...
       </div>
     );
   }
   const isMyTurn = state.currentTurn === playerId;
-  let playableTiles = isMyTurn
-    ? getPlayableTiles(myHand, state.boardEnds)
-    : [];
+  let playableTiles = isMyTurn ? getPlayableTiles(myHand, state.boardEnds) : [];
 
   // Round 1, first tile: only the double-six (la mula) is playable
   if (isMyTurn && !state.boardEnds && state.roundNumber === 1) {
@@ -469,9 +500,7 @@ function PlayingScreen({
               {state.boardEnds.left}
             </div>
           </div>
-          <div style={{ color: "#555" }}>
-            {state.board.length} tiles played
-          </div>
+          <div style={{ color: "#555" }}>{state.board.length} tiles played</div>
           <div style={{ textAlign: "center" }}>
             <div style={{ color: "#888", marginBottom: "1px" }}>Right</div>
             <div
@@ -574,7 +603,13 @@ function PlayingScreen({
 
       {/* Pass button */}
       {mustPass && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "6px",
+          }}
+        >
           <button
             onClick={handlePass}
             style={{
@@ -594,8 +629,22 @@ function PlayingScreen({
       )}
 
       {/* My hand */}
-      <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", flexShrink: 0 }}>
-        <div style={{ color: "#888", fontSize: "0.75rem", marginBottom: "2px", textAlign: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "auto",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            color: "#888",
+            fontSize: "0.75rem",
+            marginBottom: "2px",
+            textAlign: "center",
+          }}
+        >
           Your hand ({myHand.length} tiles, {calculatePipCount(myHand)} pips)
         </div>
         <div
@@ -662,8 +711,7 @@ function RoundEndScreen({
         style={{
           fontSize: "1.1rem",
           marginBottom: "16px",
-          color:
-            result.reason === "domino" ? "#22c55e" : "#f59e0b",
+          color: result.reason === "domino" ? "#22c55e" : "#f59e0b",
         }}
       >
         {result.reason === "domino"
@@ -704,7 +752,9 @@ function RoundEndScreen({
             color: "#888",
           }}
         >
-          <span>Pips remaining: A={result.pipCounts.a} B={result.pipCounts.b}</span>
+          <span>
+            Pips remaining: A={result.pipCounts.a} B={result.pipCounts.b}
+          </span>
         </div>
       </div>
 
@@ -718,11 +768,15 @@ function RoundEndScreen({
       >
         <div style={{ textAlign: "center" }}>
           <div style={{ color: "#f59e0b", fontWeight: "bold" }}>Team A</div>
-          <div style={{ fontSize: "2rem", fontWeight: "bold" }}>{state.scores.a}</div>
+          <div style={{ fontSize: "2rem", fontWeight: "bold" }}>
+            {state.scores.a}
+          </div>
         </div>
         <div style={{ textAlign: "center" }}>
           <div style={{ color: "#3b82f6", fontWeight: "bold" }}>Team B</div>
-          <div style={{ fontSize: "2rem", fontWeight: "bold" }}>{state.scores.b}</div>
+          <div style={{ fontSize: "2rem", fontWeight: "bold" }}>
+            {state.scores.b}
+          </div>
         </div>
       </div>
 
@@ -824,17 +878,19 @@ function GameOverScreen({
 // ─── Main App ───────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { state, sendAction: rawSendAction, status, playerId } = useGameClient<
-    GameState,
-    GameAction
-  >({
+  const {
+    state,
+    sendAction: rawSendAction,
+    status,
+    playerId,
+  } = useGameClient<GameState, GameAction>({
     reducer: gameReducer,
     initialState,
     debug: true,
   });
 
   // Wrap sendAction to always inject playerId into actions.
-  // @party-kit does NOT inject the sender's ID into actions,
+  // @couch-kit does NOT inject the sender's ID into actions,
   // so the reducer would see playerId as undefined and reject the action.
   const sendAction = (action: GameAction) => {
     rawSendAction({ ...action, playerId: playerId ?? undefined } as GameAction);

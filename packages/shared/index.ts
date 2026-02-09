@@ -1,4 +1,4 @@
-import { IGameState, IPlayer } from "@party-kit/core";
+import { IGameState, IPlayer } from "@couch-kit/core";
 
 // ─── Tile Types ─────────────────────────────────────────────────────────────
 
@@ -147,7 +147,7 @@ export function calculatePipCount(hand: DominoTile[]): number {
 /** Check if a tile can be played on either end. */
 export function canPlayTile(
   tile: DominoTile,
-  boardEnds: { left: number; right: number } | null
+  boardEnds: { left: number; right: number } | null,
 ): { left: boolean; right: boolean } {
   // First tile can always be played
   if (!boardEnds) return { left: true, right: true };
@@ -163,7 +163,7 @@ export function canPlayTile(
 /** Get all playable tiles from a hand given the current board ends. */
 export function getPlayableTiles(
   hand: DominoTile[],
-  boardEnds: { left: number; right: number } | null
+  boardEnds: { left: number; right: number } | null,
 ): DominoTile[] {
   return hand.filter((tile) => {
     const { left, right } = canPlayTile(tile, boardEnds);
@@ -222,14 +222,14 @@ export const initialState: GameState = {
 /**
  * Migrate a reconnecting player from their old socket ID to the new one.
  * This replaces every reference to `oldId` across the entire game state
- * so that @party-kit (which only knows the new socket ID) can continue
+ * so that @couch-kit (which only knows the new socket ID) can continue
  * addressing this player correctly.
  */
 function migratePlayer(
   state: GameState,
   oldId: string,
   newId: string,
-  secret: string
+  secret: string,
 ): GameState {
   const oldPlayer = state.players[oldId];
 
@@ -259,9 +259,7 @@ function migratePlayer(
   }
 
   // Migrate turn order
-  const newTurnOrder = state.turnOrder.map((id) =>
-    id === oldId ? newId : id
-  );
+  const newTurnOrder = state.turnOrder.map((id) => (id === oldId ? newId : id));
 
   // Migrate currentTurn and roundStarter
   const newCurrentTurn =
@@ -387,7 +385,7 @@ function dealTiles(state: GameState, shuffledTiles: DominoTile[]): GameState {
     const playerId = turnOrder[i];
     hands[playerId] = shuffledTiles.slice(
       i * TILES_PER_HAND,
-      (i + 1) * TILES_PER_HAND
+      (i + 1) * TILES_PER_HAND,
     );
   }
 
@@ -407,14 +405,20 @@ function findFirstPlayer(state: GameState): string {
   // Subsequent rounds: the winner of the previous round starts
   if (state.roundStarter) {
     // Verify this player is actually in the game (has a hand dealt)
-    if (state.hands[state.roundStarter] && state.hands[state.roundStarter].length > 0) {
+    if (
+      state.hands[state.roundStarter] &&
+      state.hands[state.roundStarter].length > 0
+    ) {
       return state.roundStarter;
     }
     // If roundStarter is on a team, find their partner or teammate
     const team = getTeam(state, state.roundStarter);
     if (team) {
       const teammate = state.teams[team].find(
-        (id) => id !== state.roundStarter && state.hands[id] && state.hands[id].length > 0
+        (id) =>
+          id !== state.roundStarter &&
+          state.hands[id] &&
+          state.hands[id].length > 0,
       );
       if (teammate) return teammate;
     }
@@ -440,7 +444,7 @@ function advanceTurn(state: GameState): string {
 function resolveRoundEnd(
   state: GameState,
   reason: "domino" | "tranque",
-  winnerId: string | null
+  winnerId: string | null,
 ): GameState {
   // Calculate pip counts per team
   const pipCounts = { a: 0, b: 0 };
@@ -527,7 +531,7 @@ function resolveRoundEnd(
 
 export const gameReducer = (
   state: GameState,
-  action: GameAction
+  action: GameAction,
 ): GameState => {
   switch (action.type) {
     // ── Player Management ───────────────────────────────────────────────
@@ -548,7 +552,7 @@ export const gameReducer = (
 
       // ── Session Recovery ─────────────────────────────────────────────
       // If this secret was previously used by another player, migrate
-      // all their data to the new socket ID (party-kit generates a new
+      // all their data to the new socket ID (couch-kit generates a new
       // random socketId on every TCP connection).
       if (secret && state.sessions[secret]) {
         const oldId = state.sessions[secret];
@@ -562,7 +566,7 @@ export const gameReducer = (
       // ── New Player ───────────────────────────────────────────────────
       // Max 4 humans
       const humanCount = Object.values(state.players).filter(
-        (p) => p.connected
+        (p) => p.connected,
       ).length;
       if (humanCount >= TOTAL_PLAYERS) return state;
 
@@ -577,9 +581,7 @@ export const gameReducer = (
       let newState: GameState = {
         ...state,
         players: { ...state.players, [id]: player },
-        sessions: secret
-          ? { ...state.sessions, [secret]: id }
-          : state.sessions,
+        sessions: secret ? { ...state.sessions, [secret]: id } : state.sessions,
       };
 
       // Auto-assign to a team if in lobby
@@ -613,7 +615,7 @@ export const gameReducer = (
 
       // Check target team isn't full of humans
       const humansInTarget = state.teams[targetTeam].filter(
-        (id) => !state.bots[id]
+        (id) => !state.bots[id],
       ).length;
       if (humansInTarget >= PLAYERS_PER_TEAM) return state;
 
@@ -634,7 +636,7 @@ export const gameReducer = (
 
       // Need at least 1 connected human
       const connectedHumans = Object.values(state.players).filter(
-        (p) => p.connected
+        (p) => p.connected,
       ).length;
       if (connectedHumans === 0) return state;
 
@@ -644,8 +646,7 @@ export const gameReducer = (
       // Deal tiles
       newState = dealTiles(newState, action.payload.shuffledTiles);
 
-      const roundNumber =
-        state.phase === "lobby" ? 1 : state.roundNumber + 1;
+      const roundNumber = state.phase === "lobby" ? 1 : state.roundNumber + 1;
 
       newState = {
         ...newState,
@@ -769,7 +770,7 @@ export const gameReducer = (
         return resolveRoundEnd(
           { ...state, consecutivePasses: newPasses },
           "tranque",
-          null
+          null,
         );
       }
 
