@@ -1219,7 +1219,12 @@ export default function App() {
 
   return (
     <GameHostProvider
-      config={{ reducer: gameReducer, initialState, staticDir, debug: true }}
+      config={{
+        reducer: gameReducer,
+        initialState,
+        staticDir,
+        debug: true,
+      }}
     >
       <GameScreen />
     </GameHostProvider>
