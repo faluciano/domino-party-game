@@ -1,6 +1,6 @@
 # Domino Party Game
 
-A Dominican-style dominoes party game built with [`@couch-kit`](https://github.com/faluciano/tv-part-library). An Android TV acts as the game board and server, while phones connect as controllers via QR code.
+A Dominican-style dominoes party game built with [`@couch-kit`](https://github.com/faluciano/react-native-couch-kit). An Android TV acts as the game board and server, while phones connect as controllers via QR code.
 
 ## How It Works
 
