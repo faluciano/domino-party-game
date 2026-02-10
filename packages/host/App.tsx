@@ -6,9 +6,13 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { GameHostProvider, useGameHost } from "@couch-kit/host";
+import {
+  GameHostProvider,
+  useGameHost,
+  useExtractAssets,
+} from "@couch-kit/host";
 import QRCode from "react-native-qrcode-svg";
-import RNFS from "react-native-fs";
+import manifest from "./src/www-manifest.json";
 import {
   gameReducer,
   initialState,
@@ -21,71 +25,6 @@ import {
   getPlayableTiles,
   canPlayTile,
 } from "@my-game/shared";
-
-// ─── Asset Extraction (Android) ─────────────────────────────────────────────
-
-async function copyAssetsDirectory(
-  assetDir: string,
-  destDir: string,
-): Promise<void> {
-  const destExists = await RNFS.exists(destDir);
-  if (!destExists) {
-    await RNFS.mkdir(destDir);
-  }
-
-  const entries = await RNFS.readDirAssets(assetDir);
-
-  for (const entry of entries) {
-    const assetPath = assetDir ? `${assetDir}/${entry.name}` : entry.name;
-    const destPath = `${destDir}/${entry.name}`;
-
-    if (entry.isDirectory()) {
-      await copyAssetsDirectory(assetPath, destPath);
-    } else {
-      await RNFS.copyFileAssets(assetPath, destPath);
-    }
-  }
-}
-
-function useExtractAssets() {
-  const [staticDir, setStaticDir] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(Platform.OS === "android");
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (Platform.OS !== "android") return;
-
-    const extract = async () => {
-      try {
-        const destDir = `${RNFS.DocumentDirectoryPath}/www`;
-        const exists = await RNFS.exists(destDir);
-        if (exists) {
-          await RNFS.unlink(destDir);
-        }
-
-        const hasAssets = await RNFS.existsAssets("www");
-        if (!hasAssets) {
-          setError(
-            'No www assets found in APK. Run "bun run bundle:client" first.',
-          );
-          setLoading(false);
-          return;
-        }
-
-        await copyAssetsDirectory("www", destDir);
-        setStaticDir(destDir);
-        setLoading(false);
-      } catch (e) {
-        setError(`Failed to extract assets: ${(e as Error).message}`);
-        setLoading(false);
-      }
-    };
-
-    extract();
-  }, []);
-
-  return { staticDir, loading, error };
-}
 
 // ─── Pip Dot Positions ───────────────────────────────────────────────────────
 // Standard domino half-tile pip layouts. Positions are fractions of half-cell size.
@@ -1198,7 +1137,7 @@ const GameScreen = () => {
 // ─── Root App ───────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { staticDir, loading, error } = useExtractAssets();
+  const { staticDir, loading, error } = useExtractAssets(manifest);
 
   if (loading) {
     return (
