@@ -212,11 +212,3 @@ bun run start --reset-cache
 ## License
 
 MIT
-
-## Current Status
-
-- @couch-kit/host: ^0.3.0
-- @couch-kit/client: ^0.3.0
-- @couch-kit/core: ^0.2.0
-- Expo SDK: 54
-- React Native: 0.81.5
