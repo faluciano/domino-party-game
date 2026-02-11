@@ -649,7 +649,7 @@ const GameScreen = () => {
   >();
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clientUrl = serverUrl ? `${serverUrl}/index` : null;
+  const clientUrl = serverUrl ? `${serverUrl}/index.html` : null;
 
   // ── Bot turn logic ──────────────────────────────────────────────────────
   useEffect(() => {
