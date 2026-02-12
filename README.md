@@ -140,6 +140,8 @@ For iterating on the client without rebuilding the Android app each time:
 **Root Level:**
 
 ```bash
+bun run build            # Typecheck + build client + bundle into host
+bun run typecheck        # Typecheck shared and client packages
 bun install              # Install all dependencies
 bun run dev:client       # Start client Vite dev server
 bun run build:client     # Build client for production
@@ -173,18 +175,22 @@ The game uses a Redux-like shared reducer pattern:
 
 **Actions:**
 
-| Action          | Description                                        |
-| --------------- | -------------------------------------------------- |
-| `PLAYER_JOINED` | Auto-dispatched when a phone connects              |
-| `PLAYER_LEFT`   | Auto-dispatched when a phone disconnects           |
-| `CHOOSE_TEAM`   | Player switches team in the lobby                  |
-| `START_GAME`    | Start the game (fills bots, deals tiles)           |
-| `PLAY_TILE`     | Play a tile on the left or right end of the board  |
-| `PASS`          | Pass turn (only valid when no tiles can be played) |
-| `NEW_ROUND`     | Start the next round after a round ends            |
-| `RESET_GAME`    | Return to lobby                                    |
+| Action               | Description                                                               |
+| -------------------- | ------------------------------------------------------------------------- |
+| `PLAYER_JOINED`      | Auto-dispatched when a phone connects                                     |
+| `PLAYER_LEFT`        | Auto-dispatched when a phone disconnects                                  |
+| `PLAYER_RECONNECTED` | Auto-dispatched when a player refreshes and reconnects (state preserved)  |
+| `PLAYER_REMOVED`     | Auto-dispatched when a disconnected player times out (default: 5 minutes) |
+| `CHOOSE_TEAM`        | Player switches team in the lobby                                         |
+| `START_GAME`         | Start the game (fills bots, deals tiles)                                  |
+| `PLAY_TILE`          | Play a tile on the left or right end of the board                         |
+| `PASS`               | Pass turn (only valid when no tiles can be played)                        |
+| `NEW_ROUND`          | Start the next round after a round ends                                   |
+| `RESET_GAME`         | Return to lobby                                                           |
 
 The reducer runs on both the TV (host) and web controller (client), keeping state synchronized. The host is authoritative -- it runs bot turns and broadcasts state updates to all clients.
+
+Player identity is stable across reconnections — if a player refreshes their browser, they automatically get their same hand, seat, and team back. Session recovery is handled by `@couch-kit` internally.
 
 ## Troubleshooting
 
