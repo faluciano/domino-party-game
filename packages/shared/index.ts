@@ -76,9 +76,6 @@ export interface GameState extends IGameState {
 
   /** Target score to win the game */
   targetScore: number;
-
-  /** Secret -> playerId mapping for session recovery across reconnects */
-  sessions: Record<string, string>;
 }
 
 // ─── Actions ────────────────────────────────────────────────────────────────
@@ -90,7 +87,6 @@ export type GameAction =
         id: string;
         name?: string;
         avatar?: string;
-        secret?: string;
       };
     }
   | { type: "PLAYER_LEFT"; payload: { playerId: string } }
@@ -214,74 +210,9 @@ export const initialState: GameState = {
   scores: { a: 0, b: 0 },
   lastRoundResult: null,
   targetScore: TARGET_SCORE,
-  sessions: {},
 };
 
 // ─── Reducer Helpers ────────────────────────────────────────────────────────
-
-/**
- * Migrate a reconnecting player from their old socket ID to the new one.
- * This replaces every reference to `oldId` across the entire game state
- * so that @couch-kit (which only knows the new socket ID) can continue
- * addressing this player correctly.
- */
-function migratePlayer(
-  state: GameState,
-  oldId: string,
-  newId: string,
-  secret: string,
-): GameState {
-  const oldPlayer = state.players[oldId];
-
-  // Build new players map: remove old entry, add new entry
-  const newPlayers = { ...state.players };
-  delete newPlayers[oldId];
-  newPlayers[newId] = { ...oldPlayer, id: newId, connected: true };
-
-  // Migrate team rosters
-  const newTeams = {
-    a: state.teams.a.map((id) => (id === oldId ? newId : id)),
-    b: state.teams.b.map((id) => (id === oldId ? newId : id)),
-  };
-
-  // Migrate seats
-  const newSeats = { ...state.seats };
-  if (oldId in newSeats) {
-    newSeats[newId] = newSeats[oldId];
-    delete newSeats[oldId];
-  }
-
-  // Migrate hands
-  const newHands = { ...state.hands };
-  if (oldId in newHands) {
-    newHands[newId] = newHands[oldId];
-    delete newHands[oldId];
-  }
-
-  // Migrate turn order
-  const newTurnOrder = state.turnOrder.map((id) => (id === oldId ? newId : id));
-
-  // Migrate currentTurn and roundStarter
-  const newCurrentTurn =
-    state.currentTurn === oldId ? newId : state.currentTurn;
-  const newRoundStarter =
-    state.roundStarter === oldId ? newId : state.roundStarter;
-
-  // Update session map
-  const newSessions = { ...state.sessions, [secret]: newId };
-
-  return {
-    ...state,
-    players: newPlayers,
-    teams: newTeams,
-    seats: newSeats,
-    hands: newHands,
-    turnOrder: newTurnOrder,
-    currentTurn: newCurrentTurn,
-    roundStarter: newRoundStarter,
-    sessions: newSessions,
-  };
-}
 
 function assignSeatAndTeam(state: GameState, playerId: string): GameState {
   // Count humans in each team
@@ -537,9 +468,9 @@ export const gameReducer = (
     // ── Player Management ───────────────────────────────────────────────
 
     case "PLAYER_JOINED": {
-      const { id, name, avatar, secret } = action.payload;
+      const { id, name, avatar } = action.payload;
 
-      // Don't add duplicates (same socket ID already in state)
+      // Don't add duplicates (same player ID already in state)
       if (state.players[id]) {
         return {
           ...state,
@@ -548,19 +479,6 @@ export const gameReducer = (
             [id]: { ...state.players[id], connected: true },
           },
         };
-      }
-
-      // ── Session Recovery ─────────────────────────────────────────────
-      // If this secret was previously used by another player, migrate
-      // all their data to the new socket ID (couch-kit generates a new
-      // random socketId on every TCP connection).
-      if (secret && state.sessions[secret]) {
-        const oldId = state.sessions[secret];
-        const oldPlayer = state.players[oldId];
-
-        if (oldPlayer) {
-          return migratePlayer(state, oldId, id, secret);
-        }
       }
 
       // ── New Player ───────────────────────────────────────────────────
@@ -581,7 +499,6 @@ export const gameReducer = (
       let newState: GameState = {
         ...state,
         players: { ...state.players, [id]: player },
-        sessions: secret ? { ...state.sessions, [secret]: id } : state.sessions,
       };
 
       // Auto-assign to a team if in lobby
@@ -810,7 +727,7 @@ export const gameReducer = (
     }
 
     case "RESET_GAME": {
-      // Preserve connected players and sessions, reset everything else
+      // Preserve connected players, reset everything else
       const resetPlayers: Record<string, IPlayer> = {};
       for (const [id, player] of Object.entries(state.players)) {
         if (player.connected) {
@@ -818,18 +735,9 @@ export const gameReducer = (
         }
       }
 
-      // Preserve sessions for connected players only
-      const resetSessions: Record<string, string> = {};
-      for (const [secret, playerId] of Object.entries(state.sessions)) {
-        if (resetPlayers[playerId]) {
-          resetSessions[secret] = playerId;
-        }
-      }
-
       let newState: GameState = {
         ...initialState,
         players: resetPlayers,
-        sessions: resetSessions,
       };
 
       // Re-assign teams for connected players
