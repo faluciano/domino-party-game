@@ -5,8 +5,11 @@
     "paths": {
       "@my-game/shared": ["../shared"],
       "@my-game/shared/*": ["../shared/*"]
-    }
+    },
+    "composite": true,
+    "noEmit": true
   },
   "extends": "expo/tsconfig.base",
-  "include": [".", "../shared"]
+  "include": [".", "../shared"],
+  "references": [{ "path": "../shared" }]
 }

@@ -4,7 +4,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
-    "typecheck": "npx tsc --noEmit"
+    "typecheck": "npx tsc"
   },
   "devDependencies": {
     "@couch-kit/core": "^0.5.0",
