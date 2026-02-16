@@ -20,6 +20,12 @@ jobs:
 
       - run: bun install
 
+      - name: Upload updated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: bun-lockfile
+          path: bun.lock
+
       - name: Typecheck
         run: bun run typecheck
 
