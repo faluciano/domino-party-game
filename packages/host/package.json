@@ -10,7 +10,7 @@
     "prebuild": "expo prebuild"
   },
   "dependencies": {
-    "@couch-kit/host": "^1.7.1",
+    "@couch-kit/host": "^1.7.2",
     "expo": "~54.0.33",
     "expo-file-system": "~18.0.12",
     "expo-network": "~7.0.5",
