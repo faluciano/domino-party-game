@@ -10,7 +10,7 @@
     "prebuild": "expo prebuild"
   },
   "dependencies": {
-    "@couch-kit/host": "^1.7.2",
+    "@couch-kit/host": "^1.7.4",
     "expo": "~54.0.33",
     "expo-file-system": "~18.0.12",
     "expo-network": "~7.0.5",
@@ -23,7 +23,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@couch-kit/cli": "^0.3.1",
+    "@couch-kit/cli": "^0.3.3",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "^54.0.10",
     "typescript": "~5.9.2"
