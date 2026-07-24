@@ -13,7 +13,7 @@
       "name": "@my-game/client",
       "version": "1.0.0",
       "dependencies": {
-        "@couch-kit/client": "^0.8.9",
+        "@couch-kit/client": "^0.9.0",
         "@couch-kit/devtools": "^0.2.10",
         "@my-game/shared": "workspace:*",
         "react": "^18.2.0",
@@ -254,7 +254,7 @@
 
     "@couch-kit/cli": ["@couch-kit/cli@0.3.9", "", { "dependencies": { "@couch-kit/core": "0.9.3", "commander": "^15.0.0" }, "bin": { "couch-kit": "dist/index.js" } }, "sha512-LFbLGxE5QIf4TT6xkCJUrIiw7/AVeuFE0QABFBPqdrl1sQZrDaeOme4lCciGytYMqBP3dlE4KEXieqnyZ1LXzA=="],
 
-    "@couch-kit/client": ["@couch-kit/client@0.8.9", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-NKE8lGAGMJ4j1uZJt0Sc963YBD8/DJrBdmeZKU6jdBSx0EE5znxt+ezXSEj6xQB5YEpvTN1fs3Sv2+RNL5PY8A=="],
+    "@couch-kit/client": ["@couch-kit/client@0.9.0", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-IOXSke9hl1YVW1p94+biYnwEJKGC+5JmRnHgFlx8Jhi7cbIB4CQmjQs69jG6QgOiBCHSfM36LnUT71EAS2+LjA=="],
 
     "@couch-kit/core": ["@couch-kit/core@0.9.3", "", {}, "sha512-8qo0goKd1FkACnWWZCsGHFZWeQqnz3uQgUgKaCoKOXf0AJ1fjF/EJSGAYrHNwPGtKy6Br6CUeJBCzULyQFxFYg=="],
 
@@ -1259,6 +1259,8 @@
     "@babel/plugin-transform-runtime/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@couch-kit/cli/commander": ["commander@15.0.0", "", {}, "sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg=="],
+
+    "@couch-kit/devtools/@couch-kit/client": ["@couch-kit/client@0.8.9", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-NKE8lGAGMJ4j1uZJt0Sc963YBD8/DJrBdmeZKU6jdBSx0EE5znxt+ezXSEj6xQB5YEpvTN1fs3Sv2+RNL5PY8A=="],
 
     "@couch-kit/host/expo-file-system": ["expo-file-system@19.0.21", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-s3DlrDdiscBHtab/6W1osrjGL+C2bvoInPJD7sOwmxfJ5Woynv2oc+Fz1/xVXaE/V7HE/+xrHC/H45tu6lZzzg=="],
 
