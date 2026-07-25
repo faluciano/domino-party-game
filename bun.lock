@@ -1343,6 +1343,8 @@
 
     "@couch-kit/devtools/@couch-kit/client": ["@couch-kit/client@0.8.9", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-NKE8lGAGMJ4j1uZJt0Sc963YBD8/DJrBdmeZKU6jdBSx0EE5znxt+ezXSEj6xQB5YEpvTN1fs3Sv2+RNL5PY8A=="],
 
+    "@couch-kit/display/@couch-kit/client": ["@couch-kit/client@0.9.0", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-IOXSke9hl1YVW1p94+biYnwEJKGC+5JmRnHgFlx8Jhi7cbIB4CQmjQs69jG6QgOiBCHSfM36LnUT71EAS2+LjA=="],
+
     "@couch-kit/host/expo-file-system": ["expo-file-system@19.0.21", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-s3DlrDdiscBHtab/6W1osrjGL+C2bvoInPJD7sOwmxfJ5Woynv2oc+Fz1/xVXaE/V7HE/+xrHC/H45tu6lZzzg=="],
 
     "@expo/cli/glob": ["glob@13.0.6", "", { "dependencies": { "minimatch": "^10.2.2", "minipass": "^7.1.3", "path-scurry": "^2.0.2" } }, "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw=="],
