@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useGameClient } from "@couch-kit/client";
+import { useMemo, useState } from "react";
+import { useGameClient, createRelayTransport } from "@couch-kit/client";
 import {
   gameReducer,
   initialState,
@@ -15,6 +15,24 @@ import {
   shuffleTiles,
   calculatePipCount,
 } from "@my-game/shared";
+
+// ─── Relay (cross-network) opt-in ───────────────────────────────────────────
+// When the controller is opened with `?room=CODE` it connects to the shared
+// relay for that room instead of the default LAN WebSocket, letting phones
+// join a browser display from any network. Without `?room` nothing changes.
+
+const DEFAULT_RELAY_URL =
+  import.meta.env.VITE_RELAY_URL ??
+  "wss://couch-kit-relay.icycliff-4c194e2e.eastus.azurecontainerapps.io";
+
+function readRelayConfig(): { url: string; roomId: string } | null {
+  try {
+    const roomId = new URLSearchParams(window.location.search).get("room");
+    return roomId ? { url: DEFAULT_RELAY_URL, roomId } : null;
+  } catch {
+    return null;
+  }
+}
 
 // ─── Tile Component ─────────────────────────────────────────────────────────
 
@@ -878,6 +896,7 @@ function GameOverScreen({
 // ─── Main App ───────────────────────────────────────────────────────────────
 
 export default function App() {
+  const relay = useMemo(() => readRelayConfig(), []);
   const {
     state,
     sendAction: rawSendAction,
@@ -887,6 +906,9 @@ export default function App() {
     reducer: gameReducer,
     initialState,
     debug: true,
+    createTransport: relay
+      ? createRelayTransport({ url: relay.url, roomId: relay.roomId })
+      : undefined,
   });
 
   // Wrap sendAction to always inject playerId into actions.
