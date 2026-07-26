@@ -168,19 +168,27 @@ export function getPlayableTiles(
 }
 
 /** Get which team a player/bot belongs to. */
-export function getTeam(state: GameState, id: string): "a" | "b" | null {
+export function getTeam(
+  // Narrow to the fields actually read, so a projected client view (which has
+  // no `hands`) can use these too.
+  state: Pick<GameState, "teams">,
+  id: string,
+): "a" | "b" | null {
   if (state.teams.a.includes(id)) return "a";
   if (state.teams.b.includes(id)) return "b";
   return null;
 }
 
 /** Check if an ID belongs to a bot. */
-export function isBot(state: GameState, id: string): boolean {
+export function isBot(state: Pick<GameState, "bots">, id: string): boolean {
   return id in state.bots;
 }
 
 /** Get display name for a player or bot. */
-export function getDisplayName(state: GameState, id: string): string {
+export function getDisplayName(
+  state: Pick<GameState, "players" | "bots">,
+  id: string,
+): string {
   if (state.bots[id]) return state.bots[id].name;
   if (state.players[id]) return state.players[id].name;
   return "Unknown";
@@ -752,3 +760,43 @@ export const gameReducer = (
       return state;
   }
 };
+
+// ─── Client View ───────────────────────────────────────────────────
+// What one player is allowed to receive.
+//
+// `hands` holds every player's tiles. Broadcasting it and letting the
+// controller pick out its own entry hid opponents' tiles from the UI but not
+// from the device — any player could read them from devtools. Projecting here
+// means the tiles a player must not see never reach their phone.
+
+/** Per-player projection of {@link GameState}: own tiles only. */
+export interface DominoClientView extends Omit<GameState, "hands"> {
+  /** This player's tiles. Everyone else's stay on the host. */
+  myHand: DominoTile[];
+  /** Tiles remaining per player/bot, which the table shows anyway. */
+  handCounts: Record<string, number>;
+}
+
+/** A view for a client that has not received state yet. */
+export const emptyClientView: DominoClientView = (() => {
+  const { hands: _hands, ...rest } = initialState;
+  return { ...rest, myHand: [], handCounts: {} };
+})();
+
+/**
+ * Projects game state for one player. Pass to `GameHostRuntimeConfig.project`.
+ *
+ * Hand *sizes* are public — the table displays them — so they are kept; the
+ * tiles themselves are not.
+ */
+export function createClientView(
+  state: GameState,
+  playerId: string,
+): DominoClientView {
+  const { hands, ...rest } = state;
+  const handCounts: Record<string, number> = {};
+  for (const [id, tiles] of Object.entries(hands)) {
+    handCounts[id] = tiles.length;
+  }
+  return { ...rest, myHand: hands[playerId] ?? [], handCounts };
+}

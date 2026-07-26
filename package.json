@@ -18,7 +18,8 @@
     "bundle:client": "cd packages/host && bunx couch-kit bundle --source ../client --output ./android/app/src/main/assets/www --manifest ./src/www-manifest.json",
     "build:android": "bun run bundle:client && cd packages/host && npx expo run:android",
     "build": "bun run typecheck && bun run build:client && bun run bundle:client",
-    "typecheck": "bun run typecheck:shared && bun run typecheck:client && bun run typecheck:display"
+    "typecheck": "bun run typecheck:shared && bun run typecheck:client && bun run typecheck:display",
+    "test": "cd packages/shared && bun test"
   },
   "dependencies": {
     "expo-build-properties": "^1.0.10",
