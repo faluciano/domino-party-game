@@ -15,8 +15,6 @@ import {
   getTeam,
   getDisplayName,
   isBot,
-  generateAllTiles,
-  shuffleTiles,
   calculatePipCount,
 } from "@my-game/shared";
 import { JoinScreen } from "./JoinScreen";
@@ -183,8 +181,9 @@ function LobbyScreen({
   };
 
   const handleStartGame = () => {
-    const tiles = shuffleTiles(generateAllTiles());
-    sendAction({ type: "START_GAME", payload: { shuffledTiles: tiles } });
+    // The host shuffles and deals. A client-supplied deck let a player choose
+    // their own hand.
+    sendAction({ type: "START_GAME" });
   };
 
   const renderTeamSlots = (team: "a" | "b") => {
@@ -709,8 +708,7 @@ function RoundEndScreen({
   if (!result) return null;
 
   const handleNewRound = () => {
-    const tiles = shuffleTiles(generateAllTiles());
-    sendAction({ type: "NEW_ROUND", payload: { shuffledTiles: tiles } });
+    sendAction({ type: "NEW_ROUND" });
   };
 
   const winnerName = result.winnerId
