@@ -30,29 +30,22 @@ const CONTROLLER_URL = import.meta.env.VITE_CONTROLLER_URL ?? "";
 const TEAM_A_COLOR = "#f59e0b";
 const TEAM_B_COLOR = "#3b82f6";
 
-/** Unambiguous room code (no easily-confused characters). */
-function makeRoomCode(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  return Array.from(
-    { length: 4 },
-    () => alphabet[Math.floor(Math.random() * alphabet.length)],
-  ).join("");
-}
-
 export default function App() {
-  const [{ display, roomId }] = useState(() => {
-    const roomId = makeRoomCode();
-    const display = new RelayDisplayHost<GameState, GameAction>({
-      url: RELAY_URL,
-      roomId,
-      reducer: gameReducer,
-      initialState,
-      // Each phone receives only its own tiles. Without this every hand goes
-      // to every player and hiding them is left to the client.
-      project: createClientView,
-    });
-    return { display, roomId };
-  });
+  // The relay assigns the code — it is the only party that can tell whether a
+  // code is already taken — so it arrives a round trip after connecting.
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [display] = useState(
+    () =>
+      new RelayDisplayHost<GameState, GameAction>({
+        url: RELAY_URL,
+        onRoomCode: setRoomId,
+        reducer: gameReducer,
+        initialState,
+        // Each phone receives only its own tiles. Without this every hand goes
+        // to every player and hiding them is left to the client.
+        project: createClientView,
+      }),
+  );
 
   useEffect(() => () => display.stop(), [display]);
 
@@ -61,9 +54,11 @@ export default function App() {
   // The display owns the runtime, so it drives the bot seats.
   useBotTurns(state, display.dispatch);
 
+  // No QR until there is a code to encode; a link to the wrong room is worse
+  // than a moment without one.
   const joinUrl = useMemo(
     () =>
-      CONTROLLER_URL
+      CONTROLLER_URL && roomId
         ? `${CONTROLLER_URL}${CONTROLLER_URL.includes("?") ? "&" : "?"}room=${roomId}`
         : null,
     [roomId],
@@ -90,7 +85,7 @@ function LobbyView({
 }: {
   state: GameState;
   joinUrl: string | null;
-  roomId: string;
+  roomId: string | null;
 }) {
   const connectedHumans = Object.values(state.players).filter(
     (p) => p.connected,
@@ -126,12 +121,14 @@ function LobbyView({
             <QRCode value={joinUrl} size={160} />
           ) : (
             <div style={{ width: 160, color: "#333", fontSize: 13 }}>
-              Set VITE_CONTROLLER_URL to show a join QR
+              {!CONTROLLER_URL
+                ? "Set VITE_CONTROLLER_URL to show a join QR"
+                : "Getting a room code…"}
             </div>
           )}
         </div>
         <div style={styles.roomLabel}>ROOM CODE</div>
-        <div style={styles.roomCode}>{roomId}</div>
+        <div style={styles.roomCode}>{roomId ?? "······"}</div>
         {joinUrl && <div style={styles.urlText}>{joinUrl}</div>}
       </div>
     </div>
