@@ -279,7 +279,7 @@
 
     "@couch-kit/devtools": ["@couch-kit/devtools@0.2.10", "", { "peerDependencies": { "@couch-kit/client": "0.8.9", "react": ">=18.0.0" } }, "sha512-TY6DJGl2iZHEjR3SoCIpNHD5UHaIDSMMlTblDSqlVjOQ18ZVDhZasYua0ckUCcr4chOFRnkigC/4plwcsPC82g=="],
 
-    "@couch-kit/display": ["@couch-kit/display@0.2.0", "", { "dependencies": { "@couch-kit/client": "0.10.0", "@couch-kit/core": "0.9.3", "@couch-kit/runtime": "0.1.0" } }, "sha512-jpQOq8l57CIdqovsgB4uCqfG0c4Xr5az1IVZw0snwXNWeb6L8Ie8Q4yICRLZbuDHScX1NTTgHXS+Q72WeA7BbQ=="],
+    "@couch-kit/display": ["@couch-kit/display@0.2.2", "", { "dependencies": { "@couch-kit/client": "0.11.0", "@couch-kit/core": "0.9.3", "@couch-kit/runtime": "0.1.0" } }, "sha512-uYCsaHHJNzyOy0RIl4PfdRkRziQ44KZcXCcGoIt71gwGbsVAWr2+rsE08GiyOTB24T2ldXOCofaD7qU7rvRqkw=="],
 
     "@couch-kit/host": ["@couch-kit/host@1.7.14", "", { "dependencies": { "@couch-kit/core": "0.9.3", "@couch-kit/runtime": "0.1.0", "buffer": "^6.0.3", "js-sha1": "^0.7.0", "react-native-nitro-http-server": "^1.6.1" }, "peerDependencies": { "expo": ">=51.0.0", "expo-file-system": ">=19.0.0", "expo-network": ">=7.0.0", "react": ">=18.2.0", "react-native": ">=0.72.0", "react-native-nitro-modules": ">=0.33.0" } }, "sha512-YWzPKNmKLSR5GrbDC+qBhXqmFLpsgTkYMh5zebXkZR1UnBXp2o2RFGJ/AcKqG+Vccbs+VWWHXb5sO//5vUmONg=="],
 
@@ -1065,7 +1065,7 @@
 
     "pngjs": ["pngjs@5.0.0", "", {}, "sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw=="],
 
-    "postcss": ["postcss@8.5.23", "", { "dependencies": { "nanoid": "^3.3.16", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg=="],
+    "postcss": ["postcss@8.4.49", "", { "dependencies": { "nanoid": "^3.3.7", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA=="],
 
     "pretty-bytes": ["pretty-bytes@5.6.0", "", {}, "sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg=="],
 
@@ -1343,10 +1343,6 @@
 
     "@couch-kit/cli/commander": ["commander@15.0.0", "", {}, "sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg=="],
 
-    "@couch-kit/devtools/@couch-kit/client": ["@couch-kit/client@0.10.0", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-hlvL06gGlZXrv3Dc+IeobgERJY9kNzeq/+eH0QfF+JeeNu7iLiN8lYsuZuv2Q8wuSNDFkDgkVKesyjd1ENb1QA=="],
-
-    "@couch-kit/display/@couch-kit/client": ["@couch-kit/client@0.10.0", "", { "dependencies": { "@couch-kit/core": "0.9.3" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-hlvL06gGlZXrv3Dc+IeobgERJY9kNzeq/+eH0QfF+JeeNu7iLiN8lYsuZuv2Q8wuSNDFkDgkVKesyjd1ENb1QA=="],
-
     "@couch-kit/host/expo-file-system": ["expo-file-system@19.0.23", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-MeGkid9OeNILfT/qonaXHp4f2c15xaB28U/bcN7pqZej0Kx0+6+V7e9ZIXpPHm07zVatxA+QkMTPQEGfmvVOxA=="],
 
     "@expo/cli/glob": ["glob@13.0.6", "", { "dependencies": { "minimatch": "^10.2.2", "minipass": "^7.1.3", "path-scurry": "^2.0.2" } }, "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw=="],
@@ -1384,8 +1380,6 @@
     "@expo/metro-config/@expo/json-file": ["@expo/json-file@10.0.16", "", { "dependencies": { "@babel/code-frame": "~7.10.4", "json5": "^2.2.3" } }, "sha512-fcVkWEj+hLuP2yt5W0aw6LmDRqSPWDLUSxOMcmFeV+algmIF59sQVKCwB9btjQLd4V6x9N0pISkQEkBubUHrCw=="],
 
     "@expo/metro-config/glob": ["glob@13.0.6", "", { "dependencies": { "minimatch": "^10.2.2", "minipass": "^7.1.3", "path-scurry": "^2.0.2" } }, "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw=="],
-
-    "@expo/metro-config/postcss": ["postcss@8.4.49", "", { "dependencies": { "nanoid": "^3.3.7", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA=="],
 
     "@expo/package-manager/@expo/json-file": ["@expo/json-file@11.0.1", "", { "dependencies": { "@babel/code-frame": "^7.20.0", "json5": "^2.2.3" } }, "sha512-zxHWj4MKKMAL29ZQSY/Fssx4Thluk40JmuGNaeS078wy/NhlFhnVi+rHHunulE3xJAJ0CM73m8VK2+GkF9eRwQ=="],
 

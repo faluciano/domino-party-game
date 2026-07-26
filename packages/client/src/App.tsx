@@ -1,5 +1,10 @@
 import { useMemo, useState } from "react";
-import { useGameClient, createRelayTransport } from "@couch-kit/client";
+import {
+  useGameClient,
+  createRelayTransport,
+  useRelayRoom,
+  describeRelayError,
+} from "@couch-kit/client";
 import {
   gameReducer,
   initialState,
@@ -15,22 +20,25 @@ import {
   shuffleTiles,
   calculatePipCount,
 } from "@my-game/shared";
+import { JoinScreen } from "./JoinScreen";
 
-// ─── Relay (cross-network) opt-in ───────────────────────────────────────────
-// When the controller is opened with `?room=CODE` it connects to the shared
-// relay for that room instead of the default LAN WebSocket, letting phones
-// join a browser display from any network. Without `?room` nothing changes.
+// ─── Relay ──────────────────────────────────────────────────────────────────
+// Play is cross-network through the shared relay, addressed by room code:
+// `?room=CODE` (what the display's QR links to) or typed on the join screen.
+// `&relay=wss://...` overrides the endpoint.
 
 const DEFAULT_RELAY_URL =
   import.meta.env.VITE_RELAY_URL ??
   "wss://couch-kit-relay.faluciano.workers.dev";
 
-function readRelayConfig(): { url: string; roomId: string } | null {
+function readRelayUrl(): string {
   try {
-    const roomId = new URLSearchParams(window.location.search).get("room");
-    return roomId ? { url: DEFAULT_RELAY_URL, roomId } : null;
+    return (
+      new URLSearchParams(window.location.search).get("relay") ??
+      DEFAULT_RELAY_URL
+    );
   } catch {
-    return null;
+    return DEFAULT_RELAY_URL;
   }
 }
 
@@ -896,20 +904,42 @@ function GameOverScreen({
 // ─── Main App ───────────────────────────────────────────────────────────────
 
 export default function App() {
-  const relay = useMemo(() => readRelayConfig(), []);
+  const { roomId, setRoomId } = useRelayRoom();
+
+  // The client is only mounted once a room exists. Rendering the join screen
+  // while `useGameClient` runs is not enough — with no relay transport it falls
+  // back to the LAN socket and retries a host that cannot exist on a hosted
+  // controller, and those retries overwrite the status shown here.
+  if (!roomId) return <JoinScreen onJoin={setRoomId} />;
+
+  return <Controller key={roomId} roomId={roomId} onRejoin={setRoomId} />;
+}
+
+function Controller({
+  roomId,
+  onRejoin,
+}: {
+  readonly roomId: string;
+  readonly onRejoin: (code: string) => void;
+}) {
+  const url = useMemo(() => readRelayUrl(), []);
   const {
     state,
     sendAction: rawSendAction,
     status,
     playerId,
+    disconnectReason,
   } = useGameClient<GameState, GameAction>({
     reducer: gameReducer,
     initialState,
     debug: true,
-    createTransport: relay
-      ? createRelayTransport({ url: relay.url, roomId: relay.roomId })
-      : undefined,
+    createTransport: createRelayTransport({ url, roomId }),
   });
+
+  // A terminal relay failure (wrong or expired code, full room) is worth
+  // explaining; an ordinary drop is retried and needs no screen.
+  const joinError = describeRelayError(disconnectReason);
+  if (joinError) return <JoinScreen onJoin={onRejoin} error={joinError} />;
 
   // Wrap sendAction to always inject playerId into actions.
   // @couch-kit does NOT inject the sender's ID into actions,
