@@ -93,7 +93,6 @@ export type GameAction =
   | { type: "CHOOSE_TEAM"; payload: { team: "a" | "b" }; playerId?: string }
   | {
       type: "START_GAME";
-      payload: { shuffledTiles: DominoTile[] };
       playerId?: string;
     }
   | {
@@ -102,7 +101,7 @@ export type GameAction =
       playerId?: string;
     }
   | { type: "PASS"; playerId?: string }
-  | { type: "NEW_ROUND"; payload: { shuffledTiles: DominoTile[] } }
+  | { type: "NEW_ROUND" }
   | { type: "RESET_GAME" };
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -310,7 +309,16 @@ function fillBotsAndAssignSeats(state: GameState): GameState {
   };
 }
 
-function dealTiles(state: GameState, shuffledTiles: DominoTile[]): GameState {
+/**
+ * Deals a fresh shuffle. The shuffle happens here, not in the action, because
+ * the reducer runs only on the host: a client that supplied the deck could deal
+ * itself the hand of its choosing. This makes the reducer non-deterministic, so
+ * replaying an action log will not reproduce a deal — the state snapshot is the
+ * source of truth, not the log.
+ */
+function dealTiles(state: GameState): GameState {
+  const shuffledTiles = shuffleTiles(generateAllTiles());
+
   // Build turn order by seat: 0, 1, 2, 3
   const seatToPlayer: Record<number, string> = {};
   for (const [id, seat] of Object.entries(state.seats)) {
@@ -569,7 +577,7 @@ export const gameReducer = (
       let newState = fillBotsAndAssignSeats(state);
 
       // Deal tiles
-      newState = dealTiles(newState, action.payload.shuffledTiles);
+      newState = dealTiles(newState);
 
       const roundNumber = state.phase === "lobby" ? 1 : state.roundNumber + 1;
 
@@ -718,7 +726,7 @@ export const gameReducer = (
         lastRoundResult: null,
       };
 
-      newState = dealTiles(newState, action.payload.shuffledTiles);
+      newState = dealTiles(newState);
 
       const roundNumber = state.roundNumber + 1;
       newState = {
