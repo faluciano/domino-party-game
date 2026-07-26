@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@couch-kit/core": "^0.9.3",
-    "@couch-kit/display": "^0.2.0",
+    "@couch-kit/display": "^0.2.3",
     "@my-game/shared": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

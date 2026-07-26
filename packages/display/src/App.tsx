@@ -10,6 +10,7 @@ import { RelayDisplayHost } from "@couch-kit/display";
 import {
   gameReducer,
   initialState,
+  createClientView,
   getDisplayName,
   getTeam,
   isBot,
@@ -46,6 +47,9 @@ export default function App() {
       roomId,
       reducer: gameReducer,
       initialState,
+      // Each phone receives only its own tiles. Without this every hand goes
+      // to every player and hiding them is left to the client.
+      project: createClientView,
     });
     return { display, roomId };
   });

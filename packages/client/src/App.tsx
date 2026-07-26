@@ -6,9 +6,8 @@ import {
   describeRelayError,
 } from "@couch-kit/client";
 import {
-  gameReducer,
-  initialState,
-  GameState,
+  emptyClientView,
+  DominoClientView,
   GameAction,
   DominoTile,
   canPlayTile,
@@ -170,7 +169,7 @@ function LobbyScreen({
   playerId,
   sendAction,
 }: {
-  state: GameState;
+  state: DominoClientView;
   playerId: string | null;
   sendAction: (action: GameAction) => void;
 }) {
@@ -360,7 +359,7 @@ function PlayingScreen({
   playerId,
   sendAction,
 }: {
-  state: GameState;
+  state: DominoClientView;
   playerId: string | null;
   sendAction: (action: GameAction) => void;
 }) {
@@ -368,7 +367,7 @@ function PlayingScreen({
 
   if (!playerId) return <div>Connecting...</div>;
 
-  const myHand = state.hands[playerId] || [];
+  const myHand = state.myHand;
 
   // If we're in the playing phase but don't have tiles yet, the host state
   // hasn't been hydrated. Show a brief loading indicator rather than an
@@ -703,7 +702,7 @@ function RoundEndScreen({
   state,
   sendAction,
 }: {
-  state: GameState;
+  state: DominoClientView;
   sendAction: (action: GameAction) => void;
 }) {
   const result = state.lastRoundResult;
@@ -831,7 +830,7 @@ function GameOverScreen({
   state,
   sendAction,
 }: {
-  state: GameState;
+  state: DominoClientView;
   sendAction: (action: GameAction) => void;
 }) {
   const winner = state.scores.a >= state.targetScore ? "a" : "b";
@@ -923,15 +922,18 @@ function Controller({
   readonly onRejoin: (code: string) => void;
 }) {
   const url = useMemo(() => readRelayUrl(), []);
+  // No reducer: the host projects state per player, so this client holds a
+  // view rather than the whole game and cannot reduce over it. It renders what
+  // the host sends — which is the point, since other players' tiles are never
+  // delivered here.
   const {
     state,
     sendAction: rawSendAction,
     status,
     playerId,
     disconnectReason,
-  } = useGameClient<GameState, GameAction>({
-    reducer: gameReducer,
-    initialState,
+  } = useGameClient<DominoClientView, GameAction>({
+    initialState: emptyClientView,
     debug: true,
     createTransport: createRelayTransport({ url, roomId }),
   });
