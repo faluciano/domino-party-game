@@ -10,8 +10,13 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
-    "composite": true
+    "composite": true,
+    "types": [
+      "bun"
+    ]
   },
-  "include": ["*.ts"],
+  "include": [
+    "*.ts"
+  ],
   "references": []
 }
