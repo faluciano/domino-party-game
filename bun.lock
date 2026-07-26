@@ -14,7 +14,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@couch-kit/client": "^0.12.0",
-        "@couch-kit/devtools": "^0.2.10",
+        "@couch-kit/devtools": "^3.0.2",
         "@my-game/shared": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -278,7 +278,7 @@
 
     "@couch-kit/core": ["@couch-kit/core@0.9.3", "", {}, "sha512-8qo0goKd1FkACnWWZCsGHFZWeQqnz3uQgUgKaCoKOXf0AJ1fjF/EJSGAYrHNwPGtKy6Br6CUeJBCzULyQFxFYg=="],
 
-    "@couch-kit/devtools": ["@couch-kit/devtools@0.2.10", "", { "peerDependencies": { "@couch-kit/client": "0.8.9", "react": ">=18.0.0" } }, "sha512-TY6DJGl2iZHEjR3SoCIpNHD5UHaIDSMMlTblDSqlVjOQ18ZVDhZasYua0ckUCcr4chOFRnkigC/4plwcsPC82g=="],
+    "@couch-kit/devtools": ["@couch-kit/devtools@3.0.2", "", { "peerDependencies": { "@couch-kit/client": ">=0.9.0 <1.0.0", "react": ">=18.0.0" }, "optionalPeers": ["@couch-kit/client"] }, "sha512-Qx375C4HPA2FtRaMLJe6W9o6Vs7b/uhO0iwZP+CGf0c6YBj6V2ARxXKti9hn9tQR4VsNasS2e/jBOFTnl3alKQ=="],
 
     "@couch-kit/display": ["@couch-kit/display@0.2.3", "", { "dependencies": { "@couch-kit/client": "0.12.0", "@couch-kit/core": "0.9.3", "@couch-kit/runtime": "0.2.0" } }, "sha512-dam7RRQZXFl6kMrMnA3IBEB+0R80I1QCTt/3Z7P/xCS8/HgNHB1tcdMJlJnix4+LrJHogMvIIhUVdIoi0lbqkA=="],
 
