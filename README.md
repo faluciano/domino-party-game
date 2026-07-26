@@ -99,6 +99,59 @@ cd packages/host && npx expo run:android
 4. Tap "Start Game" -- empty seats are filled with bots
 5. Play dominoes! Tap a tile to play it, or pass when you can't
 
+## Cross-Network Play (Browser Display)
+
+Besides the Android TV host, the game runs entirely in a browser, so players on
+**different networks** can join. A **display page** (`packages/display`) owns the
+authoritative game — the same `gameReducer` the TV runs, bots included — and
+reaches phones through a small, game-agnostic **relay**.
+
+```mermaid
+graph LR
+  subgraph PHONES["📱 Phones"]
+    P1["Player 1"]
+    P2["Player 2"]
+  end
+
+  RELAY["🔀 Relay<br/>(one room each)"]
+  DISPLAY["🖥️ Display<br/>(owns the game)"]
+
+  P1 & P2 -- "actions ➡" --> RELAY
+  RELAY -- "➡ by room" --> DISPLAY
+  DISPLAY -- "⬅ state updates" --> RELAY
+  RELAY -- "⬅ to the room" --> P1 & P2
+```
+
+**Live:**
+
+| | |
+| --- | --- |
+| Display (put this on the TV) | https://domino-display.pages.dev |
+| Controller (phones) | https://domino-controller.pages.dev |
+
+Both deploy from `main` via Cloudflare Pages.
+
+### Joining
+
+The display shows a **room code** and a QR linking to
+`<controller-url>?room=CODE`. Opening the controller without a code shows a join
+screen where it can be typed; codes are case-insensitive, and a wrong or expired
+one says so instead of hanging.
+
+### Run it locally
+
+```bash
+export VITE_RELAY_URL="wss://couch-kit-relay.faluciano.workers.dev"
+export VITE_CONTROLLER_URL="http://localhost:5173"   # display's join link
+
+bun run dev:display   # room code + QR
+bun run dev:client    # the controller
+```
+
+The relay URL is required config with no default in the SDK; to run your own,
+see `services/relay-worker` (Cloudflare) or `services/relay` (Bun) in the
+`@couch-kit` repo.
+
 ## Player Configurations
 
 | Humans | Bots | Description                       |
@@ -206,7 +259,11 @@ Then rebuild the Android app.
 
 ### WebSocket connection fails
 
-Ensure both devices are on the same WiFi network.
+For the **Android TV** path, ensure both devices are on the same WiFi network.
+
+Cross-network play does not need this — if the browser controller cannot
+connect, check the room code (the display shows the current one; codes change
+each time the display reloads).
 
 ### Metro bundler port conflict
 
