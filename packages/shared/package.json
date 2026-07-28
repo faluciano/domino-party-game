@@ -8,11 +8,11 @@
     "test": "bun test"
   },
   "devDependencies": {
-    "@couch-kit/core": "^0.10.0",
+    "@couch-kit/core": "0.10.0",
     "typescript": "^5.0.0",
     "@types/bun": "^1.3.14"
   },
   "peerDependencies": {
-    "@couch-kit/core": "^0.10.0"
+    "@couch-kit/core": "0.10.0"
   }
 }
